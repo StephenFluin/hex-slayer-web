@@ -4,7 +4,7 @@
         <div class="hex-row" *ngFor="let y of (gridHeight | range)">
             <app-hex *ngFor="let x of (gridWidth | range)" [tile]="game.tiles[y][x]">
                 <span
-                    style="display:block"
+                    style="display:block;width:100%;height:100%;align-items:center;justify-content:center;"
                     cdkDropList
                     cdkDropListConnectedTo="shop"
                     (cdkDropListDropped)="drag('cdkDropListDropped', $event)"
