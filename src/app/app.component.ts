@@ -14,7 +14,7 @@ export class AppComponent  {
   game = new Game();
 
 
-  drag(event) {
-    console.log('drag event started',event);
+  drag(msg, event) {
+    console.log(msg,'drag event started',event);
   }
 }

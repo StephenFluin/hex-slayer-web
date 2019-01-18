@@ -1,25 +1,50 @@
-<h1>
+<h1>Hex Grid</h1>
+<ng-container cdkDropListGroup>
+    <div id="grid">
+        <div class="hex-row" *ngFor="let y of (gridHeight | range)">
+            <app-hex *ngFor="let x of (gridWidth | range)" [tile]="game.tiles[y][x]">
+                <span
+                    style="display:block"
+                    cdkDropList
+                    cdkDropListConnectedTo="shop"
+                    (cdkDropListDropped)="drag('cdkDropListDropped', $event)"
+                >
+                    <ng-container *ngIf="game.tiles[y][x].village"
+                        ><img [src]="game.tiles[y][x].village.image"
+                    /></ng-container>
+                    <ng-container *ngIf="game.tiles[y][x].grave"
+                        ><img [src]="game.tiles[y][x].grave.image"
+                    /></ng-container>
+                    <ng-container *ngIf="game.tiles[y][x].pawn"
+                        ><img [src]="game.tiles[y][x].pawn.image"
+                    /></ng-container>
+                    {{ x }},{{ y }}
+                </span>
+            </app-hex>
+        </div>
+    </div>
 
-	Hex Grid</h1>
-
-<div id="grid">
-	<div class="hex-row" *ngFor="let y of gridHeight | range">
-		<app-hex *ngFor="let x of gridWidth | range" [tile]="game.tiles[y][x]">
-			<ng-container *ngIf="game.tiles[y][x].village"><img [src]="game.tiles[y][x].village.image"></ng-container>
-			<ng-container *ngIf="game.tiles[y][x].grave"><img [src]="game.tiles[y][x].grave.image"></ng-container>
-			<ng-container *ngIf="game.tiles[y][x].pawn"><img [src]="game.tiles[y][x].pawn.image"></ng-container>
-			{{x}},{{y}}
-		</app-hex>
-	</div>
-</div>
-
-<div><button (click)="game.newTurn()">New Turn</button></div>
-<div style="" *ngIf="game.selectedRealm as realm">
-	<div>Balance: {{realm.village.balance}}</div>
-	<div>Income: {{realm.income}}</div>
-	<div>Upkeep {{realm.upkeep}}</div>
-  <fieldset *ngIf="realm.village.balance > 10"><legend>Shop</legend>
-    <span  *ngIf="realm.village.balance > 10" (click)="game.buyVillager(realm.village)" draggable="true" (dragstart)="drag($event)"><img src="/assets/villager.png"></span>
-    <span  *ngIf="realm.village.balance > 20" (click)="game.buyCastle(realm.village)" draggable="true" (dragstart)="drag($event)"><img src="/assets/castle.png"></span>
-  </fieldset>
-</div>
+    <div><button (click)="game.newTurn()">New Turn</button></div>
+    <div style="" *ngIf="game.selectedRealm as realm">
+        <div>Balance: {{ realm.village.balance }}</div>
+        <div>Income: {{ realm.income }}</div>
+        <div>Upkeep {{ realm.upkeep }}</div>
+        <fieldset *ngIf="realm.village.balance > 10" cdkDropList #shop>
+            <legend>Shop</legend>
+            <div
+                style="display:inline-block;"
+                *ngIf="realm.village.balance > 10"
+                cdkDrag
+                [cdkDragData]="realm.village"
+                (cdkDragEnded)="drag('cdkDragEnded', $event)"
+                (cdkDragDropped)="drag('cdkDragDropped', $event)"
+            >
+                <img src="/assets/villager.png" />
+            </div>
+            <div style="display:inline-block;" *ngIf="realm.village.balance > 20" cdkDrag [cdkDragData]="realm.village">
+                <img src="/assets/castle.png" />
+            </div>
+            <!--(click)="game.buyCastle(realm.village)"  -->
+        </fieldset>
+    </div>
+</ng-container>
