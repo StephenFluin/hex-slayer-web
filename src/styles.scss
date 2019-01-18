@@ -1,1 +1,17 @@
-/* You can add global styles to this file, and also import other style files */
+app-hex {
+  position:relative;
+  display:inline-block;
+}
+app-hex:not(:first-child){
+  margin-left: 50px;
+}
+.hex-row {
+  overflow:hidden;
+  margin-bottom:-48px;
+}
+.hex-row:nth-child(2n) {
+  margin-left:75px;
+}
+#grid {
+  margin-bottom:50px;
+}

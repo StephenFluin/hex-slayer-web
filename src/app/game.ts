@@ -1,0 +1,264 @@
+import { gridHeight, gridWidth, villagerCost, castleCost } from './config';
+import { Tile } from './tile';
+import { Player } from './player';
+import { Castle, Villager, Village, Grave } from './pawns';
+
+export class Game {
+  tiles: Tile[][] = [];
+  players: Player[] = [];
+  selectedRealm: { village: Village, upkeep: number, income: number } = null;
+
+  carry: Castle | Villager = null;
+  carrySource: Tile;
+
+  constructor() {
+    this.newGame()
+  }
+
+  newGame() {
+    this.tiles = [];
+    for (let y = 0; y < gridHeight; y++) {
+      let row = [];
+      for (let x = 0; x < gridWidth; x++) {
+        row.push(new Tile(this, x, y));
+      }
+      this.tiles.push(row);
+    }
+    this.normalizeMap();
+  }
+
+  /**
+   * Figure out where to join / split / spawn villages
+   */
+  normalizeMap() {
+    // Clear realm data
+    for (let row of this.tiles) {
+      for (let tile of row) {
+        tile.realm = null;
+      }
+    }
+
+    // Define realms and correct villages
+    for (let row of this.tiles) {
+      for (let tile of row) {
+        // Don't scan tiles that have already been processed
+        if (!tile.realm) {
+          tile.realm = this.getTileSet(tile.x, tile.y);
+
+          // Count Villages
+          let villageCount = 0;
+          const villages: Tile[] = [];
+          for (let spot of tile.realm) {
+            if (spot.village) {
+              villageCount++;
+              villages.push(spot)
+            }
+          }
+
+          // If no villages, but realm warrants one
+          if (villages.length === 0 && tile.realm.length > 1) {
+            let dest: Tile = randomMember(tile.realm);
+            dest.village = new Village();
+            this.message(dest.player, 'Your region split');
+          }
+
+          // Remove and combine villages
+          while (villages.length > 1 || (villages.length > 0 && tile.realm.length < 2)) {
+            let dest = randomMember(villages, true);
+            if (villages.length > 0) {
+              randomMember(villages).village.balance += dest.village.balance;
+              dest.village = null;
+            }
+          }
+        }
+      }
+    }
+    // Check for endgame
+    const owners = {};
+    for (let row of this.tiles) {
+      for (let tile of row) {
+        if (tile.village) {
+          owners[tile.player] = true;
+        }
+      }
+    }
+    if (Object.keys(owners).length === 1) {
+      this.gameOver(owners[Object.keys(owners)[0]]);
+    }
+  }
+
+
+  // Given a tile position, return all connected tiles owned by same player
+  getTileSet(x: number, y: number): Tile[] {
+    const tile = this.tiles[y][x];
+    const found: Tile[] = [tile];
+    const toSearch = [tile];
+    const searched = [];
+
+    while (toSearch.length > 0) {
+      let search = toSearch.pop();
+      searched.push(search);
+
+      for (let i = 0; i < 6; i++) {
+        let considered: Tile = this.getAdjacent(search, i);
+        // Found an adjacent tile of same color
+        if (considered && search.player === considered.player) {
+          // We don't yet know about this tile
+          if (searched.indexOf(considered) == -1 && toSearch.indexOf(considered) == -1) {
+            toSearch.push(considered);
+          }
+          // Keep it if we don't have it already
+          if (found.indexOf(considered) == -1) {
+            found.push(considered);
+          }
+        }
+      }
+
+    }
+    return found;
+  }
+
+  // We define 0 as north, then go clockwise.
+  getAdjacent(from: Tile, direction: number): Tile | null {
+    const evenYChanges = [[0, -2], [0, -1], [0, 1], [0, 2], [-1, 1], [-1, -1]];
+    const oddYChanges = [[0, -2], [1, -1], [1, 1], [0, 2], [0, 1], [0, -1]];
+    const dirChanges = [evenYChanges, oddYChanges];
+    const change = dirChanges[from.y % 2][direction];
+    let x = from.x + change[0];
+    let y = from.y + change[1];
+    if (x >= 0 && y >= 0 && x < gridWidth && y < gridHeight) {
+      return this.tiles[from.y + change[1]][from.x + change[0]];
+    } else {
+      return null;
+    }
+
+  }
+
+  newTurn() {
+    // Remove graves
+    for (let row of this.tiles) {
+      for (let tile of row) {
+        if (tile.pawn instanceof Grave) {
+          tile.pawn = null;
+        }
+      }
+    }
+
+    for (let row of this.tiles) {
+      for (let tile of row) {
+        let realm = tile.realm;
+        let stats = this.calculateRealmStats(realm);
+
+        // Do things once per villaged realm
+        // Update balances from income and upkeep
+        if (tile.village) {
+          tile.village.balance += (stats.income - stats.upkeep);
+
+          // Starve random units with unmet upkeep and add back to balance
+          while (tile.village.balance < 0) {
+            shuffle(realm);
+            for (let deathTile of realm) {
+              if (deathTile.pawn && deathTile.pawn.upkeep > 0) {
+                tile.village.balance += deathTile.pawn.upkeep;
+                deathTile.pawn = null;
+                this.message(deathTile.player, 'Your unit died from unmet upkeep.');
+              }
+            }
+          }
+
+          // Mark villages as ready
+
+        }
+
+        // Remove pawns without village
+        if (tile.pawn && realm.length < 2) {
+          tile.pawn = null;
+        }
+
+
+
+      }
+    }
+
+    this.selectedRealm = null;
+  }
+
+
+  gameOver(winner: number) {
+    this.message(winner, 'You win!');
+  }
+
+  /**
+   * Send a message to the player
+   * @TODO IMPLEMENT
+   */
+  message(player: number, message) {
+    console.log(`To player ${player}, ${message}`);
+
+  }
+  // Select the set visually onscreen
+  select(selectedTile: Tile) {
+    // console.log('Selecting tile',selectedTile);
+    this.selectedRealm = null;
+    for (let row of this.tiles) {
+      for (let tile of row) {
+        tile.selected = false;
+      }
+    }
+    if (!selectedTile) {
+      return;
+    }
+    const set = this.getTileSet(selectedTile.x, selectedTile.y);
+    for (let tile of set) {
+      tile.selected = true;
+    }
+    this.selectedRealm = this.calculateRealmStats(set);
+  }
+  calculateRealmStats(set: Tile[]) {
+    let village = null, upkeep = 0, income = set.length;
+    for (let tile of set) {
+      if (tile.pawn) {
+        upkeep == tile.pawn.upkeep;
+      }
+      if (tile.village) {
+        village = tile.village;
+      }
+    }
+    if(!village) {
+      return null;
+    }
+    return { upkeep: upkeep, income: income, village: village };
+  }
+
+  buyVillager(village: Village) {
+    village.balance -= villagerCost;
+    this.carry = new Villager();
+  }
+  buyCastle(village: Village) {
+    village.balance -= castleCost;
+    this.carry = new Castle();
+  }
+}
+
+function randInt(max) {
+  return Math.floor(Math.random() * max);
+}
+
+function randomMember<T>(list: T[], remove = false): T {
+  let index = randInt(list.length);
+  if (remove) {
+    return list.splice(index, 1)[0];
+  } else {
+    return list[index];
+  }
+}
+
+/**
+ * In place array shuffle
+ */
+function shuffle<T>(array: T[]) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
