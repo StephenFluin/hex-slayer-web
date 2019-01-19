@@ -14,18 +14,18 @@ export class Pawn {
 export class Village {
     balance = 5;
     upkeep = 0;
-    image = '/assets/village.png';
+    image = './assets/village.png';
 }
 
 export class Castle extends Pawn {
-    image = '/assets/castle.png';
+    image = './assets/castle.png';
 }
 
 export class Villager extends Pawn {
     upkeep = 2;
     level = 1;
     upkeeps = [2, 6, 18, 50];
-    images = ['villager', 'wizard', 'swordsman', 'knight'].map(name => `/assets/${name}.png`);
+    images = ['villager', 'wizard', 'swordsman', 'knight'].map(name => `./assets/${name}.png`);
     image = this.images[0];
 
     levelUp() {

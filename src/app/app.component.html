@@ -38,12 +38,12 @@
                 cdkDrag
                 [cdkDragData]="{type: 'villager', source:realm.village,realm: realm}"
             >
-                <img src="/assets/villager.png" />
+                <img src="./assets/villager.png" />
                 <!-- @TODO find a way to make this autoconfig to destination square -->
-                <img *cdkDragPreview src="/assets/villager.png" />
+                <img *cdkDragPreview src="./assets/villager.png" />
             </div>
             <div style="display:inline-block;" *ngIf="realm.village.balance > 20" cdkDrag [cdkDragData]="{type: 'castle', source:realm.village,realm: realm}">
-                <img src="/assets/castle.png" />
+                <img src="./assets/castle.png" />
             </div>
             <!--(click)="game.buyCastle(realm.village)"  -->
         </fieldset>
