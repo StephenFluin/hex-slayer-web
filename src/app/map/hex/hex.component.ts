@@ -42,7 +42,7 @@ export class HexComponent {
       width / 4 * 1 + ',' + 0 + ' ' +
       width / 4 * 3 + ',' + 0;
 
-    this.color = playerColors[this.tile.player];
+    this.color = playerColors[this.tile.player.id];
 
   }
   click() {

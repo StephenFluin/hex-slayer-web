@@ -1,7 +1,10 @@
+import { Player } from './player';
+
 export class Pawn {
     upkeep = 0;
     image: string;
     canMove = false;
+    player: Player;
 }
 /**
  * I'm not sure if villages should be pawns. You can have a village OR a pawn, not both.

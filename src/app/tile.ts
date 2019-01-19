@@ -1,29 +1,30 @@
 import { Game } from './game';
 import { Pawn, Village } from './pawns';
+import { Player } from './player';
 
 export class Tile {
-  game: Game;
+    game: Game;
 
-  player:number;
-  x: number;
-  y: number;
-  pawn: Pawn;
-  village: Village;
-  realm: Tile[];
-  selected = false;
-  ready = false;
+    player: Player;
+    x: number;
+    y: number;
+    pawn: Pawn;
+    village: Village;
+    realm: Tile[];
+    selected = false;
+    ready = false;
 
-  constructor(game, x,y) {
-    this.game = game;
-    this.x = x;
-    this.y = y;
-    this.setPlayer(Math.random()*5);
-  }
+    constructor(game, x, y) {
+        this.game = game;
+        this.x = x;
+        this.y = y;
+        this.setPlayer(game.getRandomPlayer());
+    }
 
-  setPlayer(player) {
-    this.player =Math.floor(player);
-  }
-  select() {
-    this.game.select(this);
-  }
+    setPlayer(player: Player) {
+        this.player = player;
+    }
+    select() {
+        this.game.select(this);
+    }
 }
