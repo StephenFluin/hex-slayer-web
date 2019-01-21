@@ -10,14 +10,18 @@
                     (cdkDropListDropped)="drag(x,y,'cdkDropListDropped', $event)"
                     [cdkDropListEnterPredicate]="canDrag(x,y)"
                 >
+                    <ng-container *ngIf="game.tiles[y][x].player === game.players[0] && (game.tiles[y][x].village && game.tiles[y][x].village.balance >= 10 )|| (
+                            game.tiles[y][x].pawn && game.tiles[y][x].pawn.canMove)">
+                        <img src="./assets/spinner.svg" class="spinner">
+                    </ng-container>
                     <ng-container *ngIf="game.tiles[y][x].village"
-                        ><img [src]="game.tiles[y][x].village.image"
+                        ><img [src]="game.tiles[y][x].village.image" class="pawn"
                     /></ng-container>
                     <ng-container *ngIf="game.tiles[y][x].grave"
-                        ><img [src]="game.tiles[y][x].grave.image"
+                        ><img [src]="game.tiles[y][x].grave.image" class="pawn"
                     /></ng-container>
                     <ng-container *ngIf="game.tiles[y][x].pawn"
-                        ><img [src]="game.tiles[y][x].pawn.image"
+                        ><img [src]="game.tiles[y][x].pawn.image" class="pawn"
                     /></ng-container>
                     {{ x }},{{ y }}
                 </span>
@@ -30,11 +34,11 @@
         <div>Balance: {{ realm.village.balance }}</div>
         <div>Income: {{ realm.income }}</div>
         <div>Upkeep {{ realm.upkeep }}</div>
-        <fieldset *ngIf="realm.village.balance > 10 && realm.tiles[0].player === game.me" cdkDropList #shop>
+        <fieldset *ngIf="realm.village.balance >= 10 && realm.tiles[0].player === game.me" cdkDropList #shop>
             <legend>Shop</legend>
             <div
                 style="display:inline-block;"
-                *ngIf="realm.village.balance > 10"
+                *ngIf="realm.village.balance >= 10"
                 cdkDrag
                 [cdkDragData]="{type: 'villager', source:realm.village,realm: realm}"
             >
@@ -42,7 +46,7 @@
                 <!-- @TODO find a way to make this autoconfig to destination square -->
                 <img *cdkDragPreview src="./assets/villager.png" />
             </div>
-            <div style="display:inline-block;" *ngIf="realm.village.balance > 20" cdkDrag [cdkDragData]="{type: 'castle', source:realm.village,realm: realm}">
+            <div style="display:inline-block;" *ngIf="realm.village.balance >= 20" cdkDrag [cdkDragData]="{type: 'castle', source:realm.village,realm: realm}">
                 <img src="./assets/castle.png" />
             </div>
             <!--(click)="game.buyCastle(realm.village)"  -->

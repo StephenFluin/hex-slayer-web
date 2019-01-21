@@ -27,16 +27,17 @@ export class AppComponent {
      */
     drag(x, y, msg, event: CdkDragDrop<PawnDroppable>) {
         console.log(x, y, msg, 'drag event succeeded', event);
-        const dropped = event.item.data;
+        const dropped = <PawnDroppable>event.item.data;
+        console.log(dropped, 'was dropped');
         if (dropped.type === 'villager') {
-            if (dropped instanceof Village) {
-                this.game.buyVillager(dropped);
+            if (dropped.source instanceof Village) {
+                this.game.buyVillager(x, y, dropped.source);
             } else {
-                this.game.moveVillager(x, y, dropped);
+                this.game.moveVillager(x, y, dropped.source.x, dropped.source.y);
             }
         } else if (dropped.type === 'castle') {
             // Castles should only come from villages, because they can't be moved.
-            this.game.buyCastle(dropped);
+            this.game.buyCastle(x, y, (<Village>dropped.source));
         } else {
             console.error('unhandled drop type');
         }

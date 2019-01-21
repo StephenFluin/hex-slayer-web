@@ -227,7 +227,7 @@ export class Game {
             upkeep = 0;
         for (const tile of set) {
             if (tile.pawn) {
-                upkeep = tile.pawn.upkeep;
+                upkeep += tile.pawn.upkeep;
             }
             if (tile.village) {
                 village = tile.village;
@@ -239,14 +239,20 @@ export class Game {
         return { upkeep: upkeep, income: set.length, village: village, tiles: set };
     }
 
-    buyVillager(village: Village) {
+    /**
+     * Buy a villager from the identified village and place it at the target coordinates.
+     * We assume in this method that the viability of attacks have already been resolved.
+     */
+    buyVillager(targetX: number, targetY: number, village: Village) {
         village.balance -= villagerCost;
-        this.carry = new Villager();
-    }
-    moveVillager(village: Village, x: number, y: number) {
+        const tile = this.tiles[targetY][targetX];
+        tile.pawn = new Villager();
 
     }
-    buyCastle(village: Village) {
+    moveVillager(targetX: number, targetY: number, sourceX: number, sourceY: number) {
+
+    }
+    buyCastle(targetX: number, targetY: number, village: Village) {
         village.balance -= castleCost;
         this.carry = new Castle();
     }

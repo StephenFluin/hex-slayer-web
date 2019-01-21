@@ -12,7 +12,8 @@ export class Pawn {
  * a lot of 'if pawn istanceof villager'
  */
 export class Village {
-    balance = 5;
+    // 5 for real play, 10 for debugging
+    balance = 10;
     upkeep = 0;
     image = './assets/village.png';
 }
@@ -27,6 +28,7 @@ export class Villager extends Pawn {
     upkeeps = [2, 6, 18, 50];
     images = ['villager', 'wizard', 'swordsman', 'knight'].map(name => `./assets/${name}.png`);
     image = this.images[0];
+    canMove = true;
 
     levelUp() {
         this.level++;
