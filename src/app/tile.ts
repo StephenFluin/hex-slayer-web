@@ -13,6 +13,7 @@ export class Tile {
     realm: Tile[];
     selected = false;
     ready = false;
+    grave: any;
 
     constructor(game, x, y) {
         this.game = game;
