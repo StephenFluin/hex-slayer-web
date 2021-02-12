@@ -5,6 +5,7 @@ import { gridWidth, gridHeight } from './config';
 import { CdkDrag, CdkDragDrop } from '@angular/cdk/drag-drop';
 import { Villager, Castle, Village } from './pawns';
 import { Tile } from './tile';
+import { environment } from 'src/environments/environment';
 
 export interface PawnDroppable {
     type: 'villager' | 'castle';
@@ -19,6 +20,8 @@ export interface PawnDroppable {
 export class AppComponent {
     gridWidth = gridWidth;
     gridHeight = gridHeight;
+
+    environment = environment;
 
     game = new Game();
 

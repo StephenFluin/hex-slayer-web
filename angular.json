@@ -135,5 +135,8 @@
       }
     }
   },
-  "defaultProject": "hex-slayer-web"
+  "defaultProject": "hex-slayer-web",
+  "cli": {
+    "analytics": "b9ec6671-292e-4aaf-93d8-9e2d22b384df"
+  }
 }
